@@ -30,6 +30,7 @@ fs.readdirSync(path.join(__dirname, '/models'))
         modelDefiners.push(require(path.join(__dirname, '/models', file)));
     });
 
+console.log('model definers: ', modelDefiners);
 
 let entries = Object.entries(sequelize.models);
 let capsEntries = entries.map((entry) => [
@@ -40,9 +41,11 @@ sequelize.models = Object.fromEntries(capsEntries);
 
 const { Card, Types, User} = sequelize.models
 
-Card.belongsToMany(Types, {trought: 'CardXTypes'})
-Types.belongsToMany(Card, {trought: 'CardXTypes'})
-Card.belongsToMany(User, {trought: 'CardXUsers'})
+console.log(`......................${Card}......................${Types}`);
+
+Card.belongsToMany(Types, { through: 'CardXTypes' })
+Types.belongsToMany(Card, { through: 'CardXTypes' })
+Card.belongsToMany(User, { through: 'CardXUsers' })
 
 module.exports = {
     ...sequelize.models,
