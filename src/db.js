@@ -1,53 +1,44 @@
 require('dotenv').config({ path: '../.env' })
 
-const fs = require('fs');
-const path = require('path');
+const cardModel = require('./models/Card')
+const typesModel = require('./models/Types')
+const userModel = require('./models/User')
 
 const { Sequelize } = require('sequelize')
 
-const { DB_USER, DB_PASSWORD, DB_HOST } = process.env
+const { DB_USER, DB_PASSWORD, DB_HOST, DB_PORT } = process.env
+
+console.log(`postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/cardgame`);
 
 const sequelize = new Sequelize(
     `postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/cardgame`,
     {
-        logging: false,
+        logging: true,
         native: false,
+        pool: {
+            max: 5,
+            min: 0,
+            acquire: 30000,
+            idle: 10000,
+        }
     }
 );
 
-const basename = path.basename(__filename);
+cardModel(sequelize)
 
-const modelDefiners = [];
+typesModel(sequelize)
 
-fs.readdirSync(path.join(__dirname, '/models'))
-    .filter(
-        (file) =>
-            file.indexOf('.') !== 0 &&
-            file !== basename &&
-            file.slice(-3) === '.js'
-    )
-    .forEach((file) => {
-        modelDefiners.push(require(path.join(__dirname, '/models', file)));
-    });
+userModel(sequelize)
 
-console.log('model definers: ', modelDefiners);
-
-let entries = Object.entries(sequelize.models);
-let capsEntries = entries.map((entry) => [
-    entry[0][0].toUpperCase() + entry[0].slice(1),
-    entry[1],
-]);
-sequelize.models = Object.fromEntries(capsEntries);
-
-const { Card, Types, User} = sequelize.models
-
-console.log(`......................${Card}......................${Types}`);
+const {Card, Types, User} = sequelize.models
 
 Card.belongsToMany(Types, { through: 'CardXTypes' })
 Types.belongsToMany(Card, { through: 'CardXTypes' })
 Card.belongsToMany(User, { through: 'CardXUsers' })
 
 module.exports = {
-    ...sequelize.models,
+    Card,
+    Types,
+    User,
     conn: sequelize,
 };
