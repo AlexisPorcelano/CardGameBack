@@ -1,6 +1,6 @@
 const { Router } = require("express");
 
-const { getCards } = require("../controllers/getCards.js");
+const getCards = require("../controllers/getCards.js");
 
 const router = Router();
 
