@@ -1,46 +1,56 @@
-require('dotenv').config({ path: './.env' })
-
+require('dotenv').config({ path: './.env' });
+const express = require('express');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
-const routes = require('./src/routes/index.js')
+const router = require('./src/routes/index.js');
+const cors = require('cors');
 
-const express = require('express')
+// Importa la configuración de la base de datos
+const db = require('./src/db.js');
+const sequelize = require('./src/db.js').conn
+const app = express();
 
-const cors = require('cors')
+const PORT = 3001
 
-const app = express()
-
-var corOptions = {
-    origin: 'http://localhost:3001'
-}
+const corOptions = {
+    origin: `http://localhost:${PORT}`
+};
 
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(cookieParser());
 app.use(morgan('dev'));
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:5100');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
-  next();
+    res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+    next();
+  });
+
+// Configura CORS
+app.use(cors(corOptions));
+
+// Rutas
+app.use('/', router);
+
+// Manejadores de cuerpo de solicitud JSON y codificación de URL
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Ruta de prueba
+app.get('/', (req, res) => {
+    res.json({ message: 'hello world' });
 });
 
-app.use('/', routes);
+// Inicializa la conexión a la base de datos
+db.conn.sync({ force: true }).then(() => {
+    console.log('Base de datos conectada y sincronizada');
+    app.listen(PORT, () => {
+        console.log('Servidor escuchando en el puerto', PORT);
+    });
+}).catch(err => {
+    console.error('Error al conectar y sincronizar la base de datos:', err);
+});
 
-app.use(cors(corOptions))
-
-app.use(express.json)
-
-app.use(express.urlencoded({ extended: true }))
-
-app.get('/', (req, res) => {
-    res.json({ message: 'hello world'})
-})
-
-const PORT = process.env.PORT
-
-app.listen(PORT, () => {
-    console.log('server listening in port ', PORT)
-})

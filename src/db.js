@@ -8,12 +8,41 @@ const { Sequelize } = require('sequelize')
 
 const { DB_USER, DB_PASSWORD, DB_HOST, DB_PORT } = process.env
 
+const pg = require('pg')
+const { Client } = pg
+
+const client = new Client({
+    user: DB_USER,
+    password: DB_PASSWORD,
+    host: DB_HOST,
+    port: DB_PORT,
+    database: 'cardgame',
+})
+
+const connectClient = async (client) => {
+    try {
+        const didConnect = await client.connect()
+        if (didConnect) {
+            console.log(await client.query('SELECT NOW()'))
+            await client.end()
+        } else {
+            throw new Error('did not connect')
+        }
+    } catch (error) {
+        console.log(error.message);
+    }
+
+}
+
+connectClient(client)
+
 console.log(`postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/cardgame`);
 
 const sequelize = new Sequelize(
-    `postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/cardgame`,
+    `postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/cardgame`
+    ,
     {
-        logging: true,
+        logging: false,
         native: false,
         pool: {
             max: 5,
@@ -30,7 +59,7 @@ typesModel(sequelize)
 
 userModel(sequelize)
 
-const {Card, Types, User} = sequelize.models
+const { Card, Types, User } = sequelize.models
 
 Card.belongsToMany(Types, { through: 'CardXTypes' })
 Types.belongsToMany(Card, { through: 'CardXTypes' })
