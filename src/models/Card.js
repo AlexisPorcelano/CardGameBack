@@ -32,8 +32,12 @@ module.exports = (sequelize) => {
       },
       speed: {
         type: DataTypes.INTEGER,
-        allowNull: true,
+        allowNull: false,
       },
+      effect: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      }
     },
     { timestamps: false }
   );
