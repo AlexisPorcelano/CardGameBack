@@ -3,38 +3,11 @@ require('dotenv').config({ path: '../.env' })
 const cardModel = require('./models/Card')
 const typesModel = require('./models/Types')
 const userModel = require('./models/User')
+const categoryModel = require('./models/Category')
 
 const { Sequelize } = require('sequelize')
 
 const { DB_USER, DB_PASSWORD, DB_HOST, DB_PORT } = process.env
-
-const pg = require('pg')
-const { Client } = pg
-
-const client = new Client({
-    user: DB_USER,
-    password: DB_PASSWORD,
-    host: DB_HOST,
-    port: DB_PORT,
-    database: 'cardgame',
-})
-
-const connectClient = async (client) => {
-    try {
-        const didConnect = await client.connect()
-        if (didConnect) {
-            console.log(await client.query('SELECT NOW()'))
-            await client.end()
-        } else {
-            throw new Error('did not connect')
-        }
-    } catch (error) {
-        console.log(error.message);
-    }
-
-}
-
-connectClient(client)
 
 console.log(`postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/cardgame`);
 
@@ -59,11 +32,15 @@ typesModel(sequelize)
 
 userModel(sequelize)
 
-const { Card, Types, User } = sequelize.models
+categoryModel(sequelize)
 
-Card.belongsToMany(Types, { through: 'CardXTypes' })
-Types.belongsToMany(Card, { through: 'CardXTypes' })
+const { Card, Types, User, Category } = sequelize.models
+
+Card.belongsToMany(Category, { through: 'CardXCategory' })
+Category.belongsToMany(Card, {through: 'CardXcategory'})
+Types.belongsTo(Category, { through: 'CategoryXTypes' })
 Card.belongsToMany(User, { through: 'CardXUsers' })
+
 
 module.exports = {
     Card,
