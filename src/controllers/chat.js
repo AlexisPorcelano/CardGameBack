@@ -12,4 +12,8 @@ const chat = async(req, res) => {
     }
 }
 
-module.exports = chat
+const getChats = async(req, res) => {
+    res.status(200).json(messages)
+}
+
+module.exports = {chat, getChats}

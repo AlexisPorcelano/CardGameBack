@@ -37,8 +37,9 @@ categoryModel(sequelize)
 const { Card, Types, User, Category } = sequelize.models
 
 Card.belongsToMany(Category, { through: 'CardXCategory' })
-Category.belongsToMany(Card, {through: 'CardXcategory'})
-Types.belongsTo(Category, { through: 'CategoryXTypes' })
+Category.belongsToMany(Card, { through: 'CardXcategory' })
+Types.belongsToMany(Category, { through: 'CategoryXTypes' })
+Category.belongsToMany(Types, { through: 'CategoryXTypes' })
 Card.belongsToMany(User, { through: 'CardXUsers' })
 
 
@@ -46,5 +47,6 @@ module.exports = {
     Card,
     Types,
     User,
+    Category,
     conn: sequelize,
 };
