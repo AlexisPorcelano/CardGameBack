@@ -40,6 +40,8 @@ Card.belongsToMany(Category, { through: 'CardXCategory' })
 Category.belongsToMany(Card, { through: 'CardXcategory' })
 Types.belongsToMany(Category, { through: 'CategoryXTypes' })
 Category.belongsToMany(Types, { through: 'CategoryXTypes' })
+Types.belongsToMany(Card, {through: 'CardXTypes'})
+Card.belongsToMany(Types, {through: 'CardXTypes'})
 Card.belongsToMany(User, { through: 'CardXUsers' })
 
 

@@ -29,8 +29,6 @@ const createTypes = async (type) => {
     }
 }
 
-
-
 const getTypes = async (req, res) => {
     try {
 
