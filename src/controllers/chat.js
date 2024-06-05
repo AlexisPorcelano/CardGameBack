@@ -1,19 +1,32 @@
+// Mantenemos una lista de todas las conexiones WebSocket activas
+const activeConnections = [];
 
-const messages = []
+module.exports.chat = (ws, req) => {
+    // Agregamos la conexión WebSocket actual a la lista de conexiones activas
+    activeConnections.push(ws);
 
-const chat = async(req, res) => {
+    ws.on('message', (msg) => {
+        try {
+            const data = JSON.parse(msg);
+            console.log('Message received: ', data);
 
-    const {message} = req.body
+            // Enviamos el mensaje recibido a todas las conexiones activas
+            activeConnections.forEach(connection => {
+                connection.send(JSON.stringify({ player: data.player, content: data.content }));
+            });
+        } catch (error) {
+            console.error('Error parsing message:', error);
+            ws.send(JSON.stringify({ error: 'Invalid JSON format' }));
+        }
+    });
 
-    messages.push(message)
-
-    if(message.length > 0) {
-        res.status(200).json(messages)
-    }
-}
-
-const getChats = async(req, res) => {
-    res.status(200).json(messages)
-}
-
-module.exports = {chat, getChats}
+    ws.on('close', () => {
+        console.log('WebSocket connection closed');
+        
+        // Removemos la conexión WebSocket que se ha cerrado de la lista de conexiones activas
+        const index = activeConnections.indexOf(ws);
+        if (index > -1) {
+            activeConnections.splice(index, 1);
+        }
+    });
+};
