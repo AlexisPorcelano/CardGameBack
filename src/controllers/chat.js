@@ -5,6 +5,8 @@ module.exports.chat = (ws, req) => {
     // Agregamos la conexión WebSocket actual a la lista de conexiones activas
     activeConnections.push(ws);
 
+    console.log('NUEVA CONEXION: ', activeConnections[0]);
+
     ws.on('message', (msg) => {
         try {
             const data = JSON.parse(msg);

@@ -5,6 +5,8 @@ const { chat } = require("../controllers/chat.js");
 const getTypes = require("../controllers/loadTypes.js");
 const { getCategories } = require("../controllers/loadCategories.js");
 
+const gameState = require('../controllers/gamestate/gamestateIndex.js')
+
 const router = Router();
 
 module.exports = (app, expressWs) => {
@@ -14,6 +16,8 @@ module.exports = (app, expressWs) => {
 
     // Web Socket route
     app.ws('/chat', chat);
+
+    app.ws('/game', gameState)
 
     app.use('/', router);
 };
