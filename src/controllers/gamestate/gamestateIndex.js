@@ -36,6 +36,8 @@
 
 // module.exports = { player1, player2, gameState }
 
+const draw = require('./draw')
+
 const activeConnections = [];
 
 const gameState = (ws, req) => {
@@ -58,6 +60,8 @@ const gameState = (ws, req) => {
             ws.send(JSON.stringify({ error: 'Invalid JSON format' }));
         }
     });
+
+    ws.on('draw', draw)
 
     ws.on('close', () => {
         console.log('WebSocket connection closed');
